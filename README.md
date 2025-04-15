@@ -1,12 +1,21 @@
-# React + Vite
+# 💻 Frontend React - CRUD de Usuarios
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interfaz React conectada a una API REST para gestionar usuarios.
 
-Currently, two official plugins are available:
+## 🔗 Demo
+https://frontend-usuarios.onrender.com  
+Conecta con: https://usuario-api-render.onrender.com/usuarios
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Funciones
+- Crear, ver, editar y borrar usuarios
+- Detecta si el backend está dormido
 
-## Expanding the ESLint configuration
+## 🧰 Tecnologías
+React · Vite · CSS · Fetch API
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ▶️ Ejecutar en local
+npm install
+npm run dev
+
+## 🧑‍💻 Autor
+Jesús Ramos Mejías — https://jr-code.es
