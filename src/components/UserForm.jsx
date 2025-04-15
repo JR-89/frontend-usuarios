@@ -1,39 +1,57 @@
 import React, { useState, useEffect } from "react";
 
-export function UserForm() {
-  const [nombre, setNombre] = useState("");
-  const [email, setEmail] = useState("");
+export function UserForm({ usuarioEditar, onUserSaved }) {
+  const [formData, setFormData] = useState({ nombre: "", email: "" });
   const [cargando, setCargando] = useState(false);
 
-  // Despierta el backend al cargar
+  // Despierta el backend al cargar el formulario
   useEffect(() => {
     fetch("https://usuario-api-render.onrender.com/usuarios")
       .then(() => console.log("Backend despierto"))
       .catch(() => console.log("Despertando el backend..."));
   }, []);
 
+  // Carga datos del usuario a editar si existe
+  useEffect(() => {
+    if (usuarioEditar) {
+      setFormData({
+        nombre: usuarioEditar.nombre || "",
+        email: usuarioEditar.email || ""
+      });
+    } else {
+      setFormData({ nombre: "", email: "" });
+    }
+  }, [usuarioEditar]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setCargando(true);
+
+    const url = usuarioEditar
+      ? `https://usuario-api-render.onrender.com/usuarios/${usuarioEditar.id}`
+      : "https://usuario-api-render.onrender.com/usuarios";
+
+    const metodo = usuarioEditar ? "PUT" : "POST";
+
     try {
-      const response = await fetch("https://usuario-api-render.onrender.com/usuarios", {
-        method: "POST",
+      const response = await fetch(url, {
+        method: metodo,
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ nombre, email })
+        body: JSON.stringify(formData)
       });
 
       if (response.ok) {
-        alert("✅ Usuario creado correctamente");
-        setNombre("");
-        setEmail("");
+        alert(usuarioEditar ? "✅ Usuario actualizado" : "✅ Usuario creado");
+        setFormData({ nombre: "", email: "" });
+        onUserSaved(); // recarga la lista
       } else {
-        alert("❌ Error al crear el usuario");
+        alert("❌ Error al guardar el usuario");
       }
     } catch (error) {
-      console.error("Error al crear usuario:", error);
-      alert("🚫 El servidor está dormido o no disponible. Intenta de nuevo en unos segundos.");
+      console.error("Error al enviar:", error);
+      alert("🚫 Error al conectar con el servidor.");
     } finally {
       setCargando(false);
     }
@@ -41,24 +59,24 @@ export function UserForm() {
 
   return (
     <div className="form-container">
-      <h2>Crear Usuario</h2>
+      <h2>{usuarioEditar ? "Editar Usuario" : "Crear Usuario"}</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          value={formData.nombre}
+          onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
           required
         />
         <input
           type="email"
           placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           required
         />
         <button type="submit" disabled={cargando}>
-          {cargando ? "Enviando..." : "Crear Usuario"}
+          {cargando ? "Enviando..." : usuarioEditar ? "Actualizar" : "Crear Usuario"}
         </button>
       </form>
       {cargando && <p>⏳ Conectando con el servidor...</p>}
