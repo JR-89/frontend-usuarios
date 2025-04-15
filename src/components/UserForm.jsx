@@ -1,69 +1,67 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-const API_URL = "https://usuario-api-render.onrender.com/usuarios";
-
-export function UserForm({ onUserSaved, usuarioEditar }) {
+export function UserForm() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
+  const [cargando, setCargando] = useState(false);
 
+  // Despierta el backend al cargar
   useEffect(() => {
-    if (usuarioEditar) {
-      setNombre(usuarioEditar.nombre);
-      setEmail(usuarioEditar.email);
-    }
-  }, [usuarioEditar]);
+    fetch("https://usuario-api-render.onrender.com/usuarios")
+      .then(() => console.log("Backend despierto"))
+      .catch(() => console.log("Despertando el backend..."));
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const datosUsuario = { nombre, email };
-
-    let response;
-    if (usuarioEditar) {
-      // EDITAR
-      response = await fetch(`${API_URL}/${usuarioEditar.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datosUsuario),
-      });
-    } else {
-      // CREAR
-      response = await fetch(API_URL, {
+    setCargando(true);
+    try {
+      const response = await fetch("https://usuario-api-render.onrender.com/usuarios", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datosUsuario),
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ nombre, email })
       });
-    }
 
-    if (response.ok) {
-      setNombre("");
-      setEmail("");
-      onUserSaved(); // recarga lista
-    } else {
-      alert("Error al guardar el usuario");
+      if (response.ok) {
+        alert("✅ Usuario creado correctamente");
+        setNombre("");
+        setEmail("");
+      } else {
+        alert("❌ Error al crear el usuario");
+      }
+    } catch (error) {
+      console.error("Error al crear usuario:", error);
+      alert("🚫 El servidor está dormido o no disponible. Intenta de nuevo en unos segundos.");
+    } finally {
+      setCargando(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>{usuarioEditar ? "Editar usuario" : "Crear nuevo usuario"}</h2>
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        required
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <button type="submit">
-        {usuarioEditar ? "Guardar cambios" : "Crear"}
-      </button>
-    </form>
+    <div className="form-container">
+      <h2>Crear Usuario</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Nombre"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <button type="submit" disabled={cargando}>
+          {cargando ? "Enviando..." : "Crear Usuario"}
+        </button>
+      </form>
+      {cargando && <p>⏳ Conectando con el servidor...</p>}
+    </div>
   );
 }
